@@ -1,6 +1,6 @@
 # MailPolicyWitness design boundary
 
-Status: local lint, typecheck, 43 Direct Mode tests and Studionet schema preflight completed. No deployment or network consensus result has been recorded yet.
+Status: local lint, typecheck and 43 Direct Mode tests passed; two contrasting full-consensus Studionet observations and their Finalized state reads are documented in [DEPLOY.md](DEPLOY.md). These are direct-DNS policy snapshots, not email-security assessments.
 
 ## Exact question, not an email verdict
 
