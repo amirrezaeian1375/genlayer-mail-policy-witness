@@ -2,7 +2,7 @@
 
 A small, standalone GenLayer Intelligent Contract that records what two public DNS resolvers reported for one domain's **direct root DMARC TXT record**. It separates a published `p=reject` request from `p=none`, testing mode, missing or invalid records, resolver disagreement, and a failed lookup. The result is an immutable observation, not an assurance that any email was authenticated or rejected.
 
-**Status:** local contract and tests complete; not deployed or submitted. GenVM lint, semantic validation and type checking passed. Studionet's read-only `gen_getContractSchemaForCode` recognized all four public methods. **43 Direct Mode tests** passed with HTTP responses mocked; that is not a distributed validator result. A real deployment and contrasting finalized observations are needed before claiming live proof.
+**Status:** deployed on GenLayer Studionet (chain `61999`). The contract has three finalized, successfully executed transactions: deployment and two full-consensus observations, `OBSERVED_REJECT` for `example.com` and `OBSERVED_NONE` for `gmail.com`. GenVM lint, semantic validation and type checking passed; **43 Direct Mode tests** passed with HTTP responses mocked. Local tests are not distributed-network results; the two live receipts are linked below. This is hosted development-network evidence, not email-delivery or mainnet proof.
 
 ## Why this belongs on GenLayer
 
@@ -49,7 +49,21 @@ From the repository root, with Python 3.12+:
 6. `genvm-lint typecheck contracts/mail_policy_witness.py`
 7. `python -m pytest tests -q`
 
-Keep the virtual environment activated. The helper script bridges an upstream GenVM release-asset naming mismatch; it does not patch the contract or installed packages. Tests cover normal and missing policies, new testing and removed legacy tags, reordered/chunked TXT, malformed/oversized responses, DNS outages, two-resolver disagreement, falsified leader packets, append-only history and last-attempt behavior. All web calls are mocked in Direct Mode; tests do not claim that Google, Cloudflare, or GenLayer validators returned any particular result onchain.
+Keep the virtual environment activated. The helper script bridges an upstream GenVM release-asset naming mismatch; it does not patch the contract or installed packages. Tests cover normal and missing policies, new testing and removed legacy tags, reordered/chunked TXT, malformed/oversized responses, DNS outages, two-resolver disagreement, falsified leader packets, append-only history and last-attempt behavior. All web calls are mocked in Direct Mode; the tests alone are not evidence of live resolver or validator behavior. The actual full-consensus transactions are linked below.
+
+## Live Studionet evidence
+
+Observed 2026-10-19 on Studionet, chain `61999`. Contract: [`0x1aAcE138c5c2d1413d32A763fD9B45e32A84CCc1`](https://explorer-studio.genlayer.com/address/0x1aAcE138c5c2d1413d32A763fD9B45e32A84CCc1). Explorer reports all three transactions `FINALIZED`, GenVM `SUCCESS`, and consensus Accepted. Both observations ran in Normal (Full Consensus) mode with five initial validators and zero leader rotations. All calls sent `0 GEN`.
+
+| Action | Transaction | Observed result |
+| --- | --- | --- |
+| Deploy | [`0x73f36a94...311a533f`](https://explorer-studio.genlayer.com/tx/0x73f36a94eac4b11427641c608e975c513bfc40c6ed7cb0bbe4c83158311a533f) | Contract deployed with no constructor inputs. |
+| `observe("example.com")` | [`0x0745ada7...d2e9e21d`](https://explorer-studio.genlayer.com/tx/0x0745ada7937c5231f7b1752c6c0a019e2635b6a0ea5032b35aceba0fd2e9e21d) | `OBSERVED_REJECT`; both resolver packets reported direct `p=reject`, `t=n`, `legacy=false`. |
+| `observe("gmail.com")` | [`0x8c057fac...0c7f1597`](https://explorer-studio.genlayer.com/tx/0x8c057fac115914b5926f54f5270e60ed3a9a08e46bdcee05d40c59910c7f1597) | `OBSERVED_NONE`; both resolver packets reported direct `p=none`, `t=n`, `legacy=false`. |
+
+Studio **Finalized** reads of `get_latest` returned immutable observations `0` and `1` with the expected statuses and matching Google/Cloudflare digests. These are snapshots of DNS answers served during those consensus rounds, not evidence of email authentication, receiver enforcement, or future DNS state.
+
+The deployed source differs from GitHub in **raw bytes**: Studio stored CRLF line endings without the repository file's final newline. After normalizing only those line endings, the source texts match exactly; **do not claim byte-for-byte source parity**. The complete record, digests and reproduction notes are in [docs/DEPLOY.md](docs/DEPLOY.md).
 
 ## Evidence and limitations
 
